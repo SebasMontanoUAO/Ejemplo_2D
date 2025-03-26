@@ -93,10 +93,9 @@ public class GameController : MonoBehaviour
         {
             ocultarPreguntas();
             panelFinal.SetActive(true);
+            textCantidadAciertos.text = "" + cantidadAciertos;
+            textCantidadErrores.text = "" + cantidadErrores;
         }
-
-        Debug.Log("La cantidad de preguntas faciles es: " + listaPreguntasFaciles.Count);
-        Debug.Log("La cantidad de preguntas dificiles es: " + listaPreguntasDificiles.Count);
     }
 
     private void gestorPreguntas(Pregunta preguntaRND)
