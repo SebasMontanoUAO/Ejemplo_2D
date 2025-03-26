@@ -11,6 +11,7 @@ namespace models
         string lineaLeida = "";
         List<Pregunta> listaPreguntasFaciles  = new List<Pregunta>();
         List<Pregunta> listaPreguntasDificiles = new List<Pregunta>();
+        List<Pregunta> listaPreguntasAbiertas = new List<Pregunta>();
 
         public Utilities()
         {
@@ -109,13 +110,17 @@ namespace models
                     if (objPA.Dificultad.Equals("facil"))
                     {
                         listaPreguntasFaciles.Add(objPA);
+                        listaPreguntasAbiertas.Add(objPA);
                     }
                     else
                     {
                         listaPreguntasDificiles.Add(objPA);
+                        listaPreguntasAbiertas.Add(objPA);
                     }
-
-                    Debug.Log(respuesta);
+                }
+                for(int i = 0; i < listaPreguntasAbiertas.Count;i++)
+                {
+                    Debug.Log(listaPreguntasAbiertas[i].Enunciado + " " + listaPreguntasAbiertas[i].Dificultad);
                 }
             }
             catch (Exception e)

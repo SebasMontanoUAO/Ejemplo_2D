@@ -20,13 +20,17 @@ public class GameController : MonoBehaviour
     string respuestaPregunta = "";
     bool respuestaFalsoVerdadero = false;
     Pregunta preguntaActual;
-
+    int nroPreguntasDificiles;
+    int nroPreguntasFaciles;
+    int cantidadErrores;
+    int cantidadAciertos;
     //Paneles
     public GameObject panelPreguntaMultiple;
     public GameObject panelPreguntaAbierta;
     public GameObject panelPreguntaFalsoVerdadero;
     public GameObject panelIncorrecta;
     public GameObject panelCorrecta;
+    public GameObject panelFinal;
 
     //Componentes preguntas multiples
     public TextMeshProUGUI textPreguntaMultiple;
@@ -42,13 +46,21 @@ public class GameController : MonoBehaviour
     public TextMeshProUGUI textPreguntaAbierta;
     public TextMeshProUGUI textRespuestaAbierta;
 
+    public TextMeshProUGUI textCantidadErrores;
+    public TextMeshProUGUI textCantidadAciertos;
+
     // Start is called before the first frame update
     void Start()
     {
         lectorPreguntas = new Utilities();
         listaPreguntasFaciles = lectorPreguntas.getPreguntasFaciles();
         listaPreguntasDificiles = lectorPreguntas.getPreguntasDificiles();
+        nroPreguntasFaciles = listaPreguntasFaciles.Count;
+        nroPreguntasDificiles = listaPreguntasFaciles.Count;
+
         mostrarPreguntas();
+        cantidadAciertos = 0;
+        cantidadErrores = 0;
     }
 
     // Update is called once per frame
@@ -61,20 +73,30 @@ public class GameController : MonoBehaviour
     {
         textRespuestaAbierta.text = "Mostrar Respuesta";
 
-        if (listaPreguntasFaciles.Count > 0)
+        if (nroPreguntasFaciles > 1)
         {
             int nroPreguntaFacil = rnd.Next(1, listaPreguntasFaciles.Count);
             Pregunta preguntaRND = listaPreguntasFaciles[nroPreguntaFacil];
             gestorPreguntas(preguntaRND);
             listaPreguntasFaciles.Remove(listaPreguntasFaciles[nroPreguntaFacil]);
+            nroPreguntasFaciles--;
         }
-        else
+        else if(nroPreguntasDificiles > 1)
         {
             int nroPreguntaDificil = rnd.Next(1, listaPreguntasDificiles.Count);
             Pregunta preguntaRND = listaPreguntasDificiles[nroPreguntaDificil];
             gestorPreguntas(preguntaRND);
             listaPreguntasDificiles.Remove(listaPreguntasDificiles[nroPreguntaDificil]);
+            nroPreguntasDificiles--;
         }
+        else
+        {
+            ocultarPreguntas();
+            panelFinal.SetActive(true);
+        }
+
+        Debug.Log("La cantidad de preguntas faciles es: " + listaPreguntasFaciles.Count);
+        Debug.Log("La cantidad de preguntas dificiles es: " + listaPreguntasDificiles.Count);
     }
 
     private void gestorPreguntas(Pregunta preguntaRND)
@@ -143,11 +165,13 @@ public class GameController : MonoBehaviour
 
         if (preguntaActual.VerificarRespuesta(respuestaSeleccionada))
         {
+            cantidadAciertos++;
             panelCorrecta.SetActive(true);
             ocultarPreguntas();
         }
         else
         {
+            cantidadErrores++;
             panelIncorrecta.SetActive(true);
             ocultarPreguntas();
         }
@@ -169,11 +193,13 @@ public class GameController : MonoBehaviour
 
         if (preguntaActual.VerificarRespuesta(respuestaSeleccionada))
         {
+            cantidadAciertos++;
             panelCorrecta.SetActive(true);
             ocultarPreguntas();
         }
         else
         {
+            cantidadErrores++;
             panelIncorrecta.SetActive(true);
             ocultarPreguntas();
         }
