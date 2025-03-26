@@ -17,17 +17,30 @@ public class GameController : MonoBehaviour
 
     System.Random rnd = new System.Random();
 
-    String respuestaPM;
+    string respuestaPregunta = "";
+    bool respuestaFalsoVerdadero = false;
+    Pregunta preguntaActual;
 
-    public TextMeshProUGUI textPregunta;
+    //Paneles
+    public GameObject panelPreguntaMultiple;
+    public GameObject panelPreguntaAbierta;
+    public GameObject panelPreguntaFalsoVerdadero;
+    public GameObject panelIncorrecta;
+    public GameObject panelCorrecta;
+
+    //Componentes preguntas multiples
+    public TextMeshProUGUI textPreguntaMultiple;
     public TextMeshProUGUI textRespuesta1;
     public TextMeshProUGUI textRespuesta2;
     public TextMeshProUGUI textRespuesta3;
     public TextMeshProUGUI textRespuesta4;
 
-    public GameObject panelPregunta;
-    public GameObject panelIncorrecta;
-    public GameObject panelCorrecta;
+    //Componentes preguntas falso verdadero
+    public TextMeshProUGUI textPreguntaFalsoVerdadero;
+
+    //Componentes preguntas abiertas
+    public TextMeshProUGUI textPreguntaAbierta;
+    public TextMeshProUGUI textRespuestaAbierta;
 
     // Start is called before the first frame update
     void Start()
@@ -35,7 +48,7 @@ public class GameController : MonoBehaviour
         lectorPreguntas = new Utilities();
         listaPreguntasFaciles = lectorPreguntas.getPreguntasFaciles();
         listaPreguntasDificiles = lectorPreguntas.getPreguntasDificiles();
-        mostrarPreguntasMultiples();
+        mostrarPreguntas();
     }
 
     // Update is called once per frame
@@ -44,35 +57,71 @@ public class GameController : MonoBehaviour
 
     }
 
-    public void mostrarPregunta()
+    public void mostrarPreguntas()
     {
-        int nroPregunta = rnd.Next(1, listaPreguntasFaciles.Count);
-    }
+        textRespuestaAbierta.text = "Mostrar Respuesta";
 
-    public void mostrarPreguntasMultiples()
-    {
-        int nroPregunta = rnd.Next(1, listaPreguntasMultiples.Count);
-        PreguntaMultiple preguntaRND = listaPreguntasMultiples[nroPregunta];
-
-        if (preguntaRND.Dificultad.Equals("facil"))
+        if (listaPreguntasFaciles.Count > 0)
         {
-            textPregunta.text = preguntaRND.Enunciado;
-            textRespuesta1.text = preguntaRND.Respuesta1;
-            textRespuesta2.text = preguntaRND.Respuesta2;
-            textRespuesta3.text = preguntaRND.Respuesta3;
-            textRespuesta4.text = listaPreguntasMultiples[nroPregunta].Respuesta4;
-            respuestaPM = preguntaRND.RespuestaCorrecta;
-            listaPreguntasMultiples.Remove(preguntaRND);
+            int nroPreguntaFacil = rnd.Next(1, listaPreguntasFaciles.Count);
+            Pregunta preguntaRND = listaPreguntasFaciles[nroPreguntaFacil];
+            gestorPreguntas(preguntaRND);
+            listaPreguntasFaciles.Remove(listaPreguntasFaciles[nroPreguntaFacil]);
         }
         else
         {
-            listaPreguntasMultiples.Remove(preguntaRND);
-            mostrarPreguntasMultiples();
+            int nroPreguntaDificil = rnd.Next(1, listaPreguntasDificiles.Count);
+            Pregunta preguntaRND = listaPreguntasDificiles[nroPreguntaDificil];
+            gestorPreguntas(preguntaRND);
+            listaPreguntasDificiles.Remove(listaPreguntasDificiles[nroPreguntaDificil]);
         }
-        Debug.Log(listaPreguntasMultiples.Count);
     }
 
-    public void ComprobarRespuesta(int indiceRespuesta)
+    private void gestorPreguntas(Pregunta preguntaRND)
+    {
+        if (preguntaRND.GetType().Equals(typeof(PreguntaMultiple)))
+        {
+            preguntaActual = preguntaRND;
+            PreguntaMultiple preguntaMultiple = preguntaRND as PreguntaMultiple;
+            respuestaPregunta = preguntaMultiple.RespuestaCorrecta;
+
+            panelPreguntaMultiple.SetActive(true);
+            panelPreguntaAbierta.SetActive(false);
+            panelPreguntaFalsoVerdadero.SetActive(false);
+
+            textPreguntaMultiple.text = preguntaMultiple.Enunciado;
+            textRespuesta1.text = preguntaMultiple.Respuesta1;
+            textRespuesta2.text = preguntaMultiple.Respuesta2;
+            textRespuesta3.text = preguntaMultiple.Respuesta3;
+            textRespuesta4.text = preguntaMultiple.Respuesta4;
+        }
+        else if (preguntaRND.GetType().Equals(typeof(PreguntaFalsoVerdadero)))
+        {
+            preguntaActual = preguntaRND;
+            PreguntaFalsoVerdadero preguntaFalsoVerdadero = preguntaRND as PreguntaFalsoVerdadero;
+            respuestaFalsoVerdadero = preguntaFalsoVerdadero.Respuesta;
+
+            panelPreguntaMultiple.SetActive(false);
+            panelPreguntaAbierta.SetActive(false);
+            panelPreguntaFalsoVerdadero.SetActive(true);
+
+            textPreguntaFalsoVerdadero.text = preguntaFalsoVerdadero.Enunciado;
+        }
+        else
+        {
+            preguntaActual = preguntaRND;
+            PreguntaAbierta preguntaAbierta = preguntaRND as PreguntaAbierta;
+            respuestaPregunta = preguntaAbierta.Respuesta;
+
+            panelPreguntaMultiple.SetActive(false);
+            panelPreguntaAbierta.SetActive(true);
+            panelPreguntaFalsoVerdadero.SetActive(false);
+
+            textPreguntaAbierta.text = preguntaAbierta.Enunciado;
+        }
+    }
+
+    public void ComprobarRespuestaMultiple(int indiceRespuesta)
     {
         string respuestaSeleccionada = "";
 
@@ -92,28 +141,73 @@ public class GameController : MonoBehaviour
                 break;
         }
 
-        if (respuestaSeleccionada.Equals(respuestaPM))
+        if (preguntaActual.VerificarRespuesta(respuestaSeleccionada))
         {
             panelCorrecta.SetActive(true);
-            panelPregunta.SetActive(false);
+            ocultarPreguntas();
         }
         else
         {
             panelIncorrecta.SetActive(true);
-            panelPregunta.SetActive(false);
+            ocultarPreguntas();
         }
+    }
+
+    public void ComprobarRespuestaFalsoVerdadero(int indiceRespuesta)
+    {
+        bool respuestaSeleccionada = true;
+
+        switch (indiceRespuesta)
+        {
+            case 1:
+                respuestaSeleccionada = false;
+                break;
+            case 2:
+                respuestaSeleccionada = true;
+                break;
+        }
+
+        if (preguntaActual.VerificarRespuesta(respuestaSeleccionada))
+        {
+            panelCorrecta.SetActive(true);
+            ocultarPreguntas();
+        }
+        else
+        {
+            panelIncorrecta.SetActive(true);
+            ocultarPreguntas();
+        }
+    }
+
+    public void MostrarRespuestaAbierta()
+    {
+        textRespuestaAbierta.text = respuestaPregunta;
     }
 
     public void reintentarPregunta()
     {
-        panelIncorrecta.SetActive(false);
-        panelPregunta.SetActive(true);
+        if (preguntaActual.GetType().Equals(typeof(PreguntaMultiple)))
+        {
+            panelIncorrecta.SetActive(false);
+            panelPreguntaMultiple.SetActive(true);
+        }
+        else
+        {
+            panelIncorrecta.SetActive(false);
+            panelPreguntaFalsoVerdadero.SetActive(true);
+        }
     }
 
     public void siguientePregunta()
     {
         panelCorrecta.SetActive(false);
-        mostrarPreguntasMultiples();
-        panelPregunta.SetActive(true);
+        mostrarPreguntas();
+    }
+
+    public void ocultarPreguntas()
+    {
+        panelPreguntaAbierta.SetActive(false);
+        panelPreguntaFalsoVerdadero.SetActive(false);
+        panelPreguntaMultiple.SetActive(false);
     }
 }

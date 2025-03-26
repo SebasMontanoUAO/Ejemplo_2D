@@ -13,7 +13,11 @@ namespace models
         List<Pregunta> listaPreguntasDificiles = new List<Pregunta>();
 
         public Utilities()
-        { }
+        {
+            LecturaPreguntasMultiples();
+            LecturaPreguntasFalsoVerdadero();
+            LecturaPreguntasAbiertas();
+        }
 
         public void LecturaPreguntasMultiples()
         {
@@ -44,6 +48,7 @@ namespace models
                         listaPreguntasDificiles.Add(objPM);
                     }
                 }
+
             }
             catch (Exception e)
             {
@@ -95,19 +100,22 @@ namespace models
                 {
                     string[] lineaPartida = lineaLeida.Split("-");
                     string enunciado = lineaPartida[0];
-                    string versiculo = lineaPartida[1];
-                    string dificultad = lineaPartida[2];
+                    string respuesta = lineaPartida[1];
+                    string versiculo = lineaPartida[2];
+                    string dificultad = lineaPartida[3];
 
-                    PreguntaAbierta objPFV = new PreguntaAbierta(enunciado, versiculo, dificultad);
+                    PreguntaAbierta objPA = new PreguntaAbierta(enunciado, respuesta, versiculo, dificultad);
 
-                    if (objPFV.Dificultad.Equals("facil"))
+                    if (objPA.Dificultad.Equals("facil"))
                     {
-                        listaPreguntasFaciles.Add(objPFV);
+                        listaPreguntasFaciles.Add(objPA);
                     }
                     else
                     {
-                        listaPreguntasDificiles.Add(objPFV);
+                        listaPreguntasDificiles.Add(objPA);
                     }
+
+                    Debug.Log(respuesta);
                 }
             }
             catch (Exception e)
